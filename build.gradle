@@ -1,0 +1,56 @@
+plugins {
+    id 'org.springframework.boot' version "${springbootVersion}"
+    id 'io.spring.dependency-management' version "${dependencyManagement}"
+    id "org.openapi.generator" version "${openapiGenerator}"
+    id 'java'
+}
+
+group = 'cn.dlysxx.www'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    validateSpec = true
+    inputSpec = "$rootDir/specs/openapi.yml".toString()
+    outputDir = "$buildDir/generated".toString()
+    apiPackage = "cn.dlysxx.www.dlysxxtemplate.api"
+    modelPackage = "cn.dlysxx.www.dlysxxtemplate.model"
+    configOptions = [
+            dateLibrary: "java8-localdatetime",
+            delegatePattern: "true",
+            useTags: "true"
+    ]
+}
+
+dependencies {
+    implementation files('libs/Spire.Xls.jar')
+    implementation "org.springframework.boot:spring-boot-starter:${springbootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-mail:${springbootVersion}"
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springbootVersion}"
+    developmentOnly "org.springframework.boot:spring-boot-devtools:${springbootVersion}"
+    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+    implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.2'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jooq
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jooq', version: '2.6.4'
+    runtimeOnly "mysql:mysql-connector-java:${mysqlConnectorJava}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin
+    implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '2.6.5'
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation group: 'cn.dlysxx.www.common', name: 'dlysxx-common', version: '1.0.0'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
