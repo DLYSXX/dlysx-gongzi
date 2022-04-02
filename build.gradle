@@ -1,13 +1,24 @@
+buildscript {
+    ext {
+        // Automatically generated source code output address
+        openApiOutputDir = "$rootDir/build/generated/openapi"
+        apiPackagePath = "cn.dlysxx.www.dlysxx.gongzi.api"
+        modelPackagePath = "cn.dlysxx.www.dlysxx.gongzi.model"
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version "${springbootVersion}"
     id 'io.spring.dependency-management' version "${dependencyManagement}"
     id "org.openapi.generator" version "${openapiGenerator}"
+    id "org.jetbrains.gradle.plugin.idea-ext" version "$gradleIdeaExtVersion"
     id 'java'
+    id 'application'
 }
 
 group = 'cn.dlysxx.www'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+version = "${projectVersion}"
+sourceCompatibility = "${sourceCompatibility}"
 
 repositories {
     mavenCentral()
@@ -20,15 +31,38 @@ openApiGenerate {
     generatorName = "spring"
     validateSpec = true
     inputSpec = "$rootDir/specs/openapi.yml".toString()
-    outputDir = "$buildDir/generated".toString()
-    apiPackage = "cn.dlysxx.www.dlysxxtemplate.api"
-    modelPackage = "cn.dlysxx.www.dlysxxtemplate.model"
+    outputDir = "$openApiOutputDir"
+    apiPackage = "${apiPackagePath}"
+    modelPackage = "${modelPackagePath}"
     configOptions = [
-            dateLibrary: "java8-localdatetime",
+            dateLibrary    : "java8-localdatetime",
             delegatePattern: "true",
-            useTags: "true"
+            useTags        : "true"
     ]
 }
+
+idea.project.settings {
+    // IntelliJ's build is set to execute automatic generation during synchronous processing
+    taskTriggers {
+        beforeBuild tasks.getByName("openApiGenerate")
+        beforeRebuild tasks.getByName("openApiGenerate")
+        afterSync tasks.getByName("openApiGenerate")
+        beforeSync tasks.getByName("openApiGenerate")
+    }
+}
+
+compileJava {
+    // Set to perform automatic generation when compiling tasks
+    dependsOn  tasks.openApiGenerate
+    source "$openApiOutputDir/src/main/java"
+}
+
+compileTestJava {
+    source "$openApiOutputDir/src/test/java"
+}
+
+// Add automatically generated source code to the source directory
+sourceSets.main.java.srcDirs += ["$openApiOutputDir/src/main/java"]
 
 dependencies {
     implementation files('libs/Spire.Xls.jar')
@@ -36,21 +70,18 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-mail:${springbootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springbootVersion}"
     developmentOnly "org.springframework.boot:spring-boot-devtools:${springbootVersion}"
-    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-    implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.2'
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jooq
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jooq', version: '2.6.4'
-    runtimeOnly "mysql:mysql-connector-java:${mysqlConnectorJava}"
+    implementation "io.springfox:springfox-swagger2:${springfoxSwagger2}"
+    implementation "org.openapitools:jackson-databind-nullable:${jacksonDatabindNullable}"
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin
-    implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '2.6.5'
-    // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-    implementation group: 'cn.dlysxx.www.common', name: 'dlysxx-common', version: '1.0.0'
+    implementation "org.springframework.boot:spring-boot-maven-plugin:${springbootVersion}"
+    implementation "cn.dlysxx.www.common:dlysxx-common:${dlysxxCommon}"
+    implementation "javax.validation:validation-api:${validationApi}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonDataformatYaml}"
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+mainClassName = 'cn.dlysxx.www.dlysxx.gongzi.DlysxxGongziApplication'

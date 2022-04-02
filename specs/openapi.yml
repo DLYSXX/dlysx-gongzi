@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: openapi
+  version: '1.0'
+  description: Read csv file and send email for users
+  license:
+    name: BSD 3-Clause
+    url: 'https://spdx.org/licenses/BSD-3-Clause.html'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /v1/csv/gongzi:
+    post:
+      summary: ''
+      operationId: post-v1-csv-gongzi
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CsvApiCommand'
+            examples:
+              Request json sample:
+                value:
+                  csvFilePath: /usr/local/csv/gongzi.xlsx
+                  outputPath: /usr/local/csv/output/
+        description: ''
+      tags:
+        - Csv
+components:
+  schemas:
+    CsvApiCommand:
+      title: CsvApiCommand
+      type: object
+      properties:
+        csvFilePath:
+          type: string
+        outputPath:
+          type: string
+      required:
+        - csvFilePath
+        - outputPath
+      description: Csv api request parameter
